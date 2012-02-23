@@ -1,6 +1,6 @@
 module ApplicationHelper
   def logo
-    # Fill in.
+    image_tag("logo.png", alt: "Sample App", class: "round")
   end
   def full_title page_title
     base_title = "Ruby on Rails Tutorial Sample App"
