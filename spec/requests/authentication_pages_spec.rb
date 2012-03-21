@@ -4,13 +4,16 @@ describe "Authentication" do
 subject { page }
 
   describe "signin" do
-  before { visit signin_path }
+    before { visit signin_path }
 
     describe "with invalid information" do
-    before { click_button "Sign in" }
+      let(:user) { FactoryGirl.create(:user) }
+      before { click_button "Sign in" }
 
-    it { should have_selector('title', text: 'Sign in') }
-    it { should have_selector('div.flash.error', text: 'Invalid') }
+      it { should have_selector('title', text: 'Sign in') }
+      it { should have_selector('div.flash.error', text: 'Invalid') }
+      it { should_not have_link('Profile',  href: user_path(user))}
+      it { should_not have_link('Settings',  href: edit_user_path(user))}
     end
 
     describe "with valid information" do
@@ -25,7 +28,7 @@ subject { page }
       it { should have_link('Sign out', href: signout_path) }
 
         describe "followed by signout" do
-          before { click_link 'Sign out', method: :delete }
+          before { click_link "Sign out" }
           it { should have_link('Sign in', href: signin_path) }
         end
     end
@@ -71,6 +74,19 @@ subject { page }
         describe "after signing in" do
           it "should render the desired protected page" do
             page.should have_selector('title', text: 'Edit user')
+          end
+
+          describe "when signing in again" do
+            before do
+              visit signin_path
+              fill_in "Email", with: user.email
+              fill_in "Password", with: user.password
+              click_button "Sign in"
+            end
+
+            it "should render the default (profile) page" do
+              page.should have_selector('title', text: user.name)
+            end
           end
         end
       end
